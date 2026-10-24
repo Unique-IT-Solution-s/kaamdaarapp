@@ -1,0 +1,37 @@
+
+name: user
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/kaamdar_logo.png"
+  min_sdk_android: 21
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/kaamdar_splash.png
+    - assets/images/kaamdar_workers.png
+    - assets/images/onboarding_booking.png
+    - assets/images/onboarding_voice.png
+    - assets/images/onboarding_trusted.png
+    - assets/images/kaamdar_primarylogo.png
