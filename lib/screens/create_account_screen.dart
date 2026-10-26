@@ -21,14 +21,21 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   void _continue() {
     if (!_formKey.currentState!.validate()) return;
-    Navigator.of(context).pushNamed(AppRoutes.login, arguments: _phone.text.trim());
+    Navigator.of(context).pushNamed(
+      AppRoutes.login,
+      arguments: _phone.text.trim(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(backgroundColor: Colors.white, foregroundColor: KaamdarColors.ink, elevation: 0),
+      backgroundColor: KaamdarColors.offWhite,
+      appBar: AppBar(
+        backgroundColor: KaamdarColors.offWhite,
+        foregroundColor: KaamdarColors.navy,
+        elevation: 0,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 18, 24, 28),
@@ -37,13 +44,42 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(child: Image.asset('assets/images/kaamdar_primarylogo.png', height: 76, fit: BoxFit.contain)),
+                Center(
+                  child: Image.asset(
+                    'assets/images/kaamdar_primarylogo.png',
+                    height: 76,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Text(
+                        'KaamDaar',
+                        style: TextStyle(
+                          color: KaamdarColors.navy,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 const SizedBox(height: 38),
-                const Text('Create an Account', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800, color: KaamdarColors.ink)),
+                const Text(
+                  'Create an Account',
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w800,
+                    color: KaamdarColors.navy,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                const Text('Enter your mobile number to continue.', style: TextStyle(color: KaamdarColors.muted)),
+                const Text(
+                  'Enter your mobile number to continue.',
+                  style: TextStyle(color: Color(0xFF667085)),
+                ),
                 const SizedBox(height: 30),
-                const Text('Mobile Number', style: TextStyle(fontWeight: FontWeight.w600)),
+                const Text(
+                  'Mobile Number',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 9),
                 TextFormField(
                   controller: _phone,
@@ -53,10 +89,24 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     counterText: '',
                     prefixText: '+91  ',
                     hintText: 'Enter 10-digit number',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(13)),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(13),
+                      borderSide: const BorderSide(
+                        color: KaamdarColors.blue,
+                        width: 1.6,
+                      ),
+                    ),
                   ),
-                  validator: (value) => value != null && RegExp(r'^[6-9][0-9]{9}$').hasMatch(value.trim())
-                      ? null : 'Enter a valid 10-digit Indian mobile number',
+                  validator: (value) =>
+                      value != null &&
+                          RegExp(r'^[6-9][0-9]{9}$').hasMatch(value.trim())
+                      ? null
+                      : 'Enter a valid 10-digit Indian mobile number',
                 ),
                 const SizedBox(height: 22),
                 SizedBox(
@@ -64,17 +114,24 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   height: 50,
                   child: FilledButton(
                     onPressed: _continue,
-                    style: FilledButton.styleFrom(backgroundColor: KaamdarColors.orange, foregroundColor: Colors.white),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: KaamdarColors.orange,
+                      foregroundColor: KaamdarColors.white,
+                    ),
                     child: const Text('Continue'),
                   ),
                 ),
                 const SizedBox(height: 20),
-                Center(child: TextButton(
-                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.login),
-                  child: const Text('Already have an account? Log in'),
-                )),
-                const SizedBox(height: 14),
-                
+                Center(
+                  child: TextButton(
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed(AppRoutes.login),
+                    child: const Text(
+                      'Already have an account? Log in',
+                      style: TextStyle(color: KaamdarColors.blue),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

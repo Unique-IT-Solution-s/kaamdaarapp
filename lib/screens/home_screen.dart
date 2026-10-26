@@ -5,26 +5,31 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   static const _services = [
-    (Icons.plumbing_rounded, 'Plumbing', Color(0xFF168DE2)),
-    (Icons.electrical_services_rounded, 'Electrical', Color(0xFFFFA000)),
+    (Icons.plumbing_rounded, 'Plumbing', Color(0xFF1261A0)),
+    (Icons.electrical_services_rounded, 'Electrical', Color(0xFFFF7A00)),
     (Icons.cleaning_services_rounded, 'Cleaning', Color(0xFF36A88B)),
-    (Icons.ac_unit_rounded, 'AC Repair', Color(0xFF6478D8)),
-    (Icons.format_paint_rounded, 'Painting', Color(0xFFEA6F83)),
-    (Icons.handyman_rounded, 'Carpentry', Color(0xFFB78352)),
+    (Icons.ac_unit_rounded, 'AC Repair', Color(0xFF1261A0)),
+    (Icons.format_paint_rounded, 'Painting', Color(0xFFFF7A00)),
+    (Icons.handyman_rounded, 'Carpentry', Color(0xFF0B1F3A)),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: KaamdarColors.offWhite,
       appBar: AppBar(
         backgroundColor: KaamdarColors.blue,
-        foregroundColor: Colors.white,
-        title: const Text('Kaamdar', style: TextStyle(fontWeight: FontWeight.w800)),
+        foregroundColor: KaamdarColors.white,
+        title: const Text(
+          'KaamDaar',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
         actions: [
           IconButton(
             onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Notifications will be connected here.')),
+              const SnackBar(
+                content: Text('Notifications will be connected here.'),
+              ),
             ),
             icon: const Icon(Icons.notifications_none_rounded),
           ),
@@ -42,15 +47,31 @@ class HomeScreen extends StatelessWidget {
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Har Kaam Turant', style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.w800)),
+                Text(
+                  'Har Kaam Turant',
+                  style: TextStyle(
+                    color: KaamdarColors.white,
+                    fontSize: 23,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
                 SizedBox(height: 6),
-                Text('Book trusted home services near you.', style: TextStyle(color: Colors.white70)),
+                Text(
+                  'Book trusted home services near you.',
+                  style: TextStyle(color: Colors.white70),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-          const Text('What do you need help with?',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: KaamdarColors.ink)),
+          const Text(
+            'What do you need help with?',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: KaamdarColors.navy,
+            ),
+          ),
           const SizedBox(height: 14),
           GridView.builder(
             shrinkWrap: true,
@@ -67,12 +88,16 @@ class HomeScreen extends StatelessWidget {
               return InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${service.$2} booking will be connected here.')),
+                  SnackBar(
+                    content: Text(
+                      '${service.$2} booking will be connected here.',
+                    ),
+                  ),
                 ),
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: KaamdarColors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: const Color(0xFFE6EBF1)),
                   ),
@@ -82,7 +107,10 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Icon(service.$1, color: service.$3, size: 32),
                       const SizedBox(height: 10),
-                      Text(service.$2, style: const TextStyle(fontWeight: FontWeight.w700)),
+                      Text(
+                        service.$2,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
                     ],
                   ),
                 ),
@@ -90,17 +118,26 @@ class HomeScreen extends StatelessWidget {
             },
           ),
           const SizedBox(height: 18),
-          const Text('Book a service', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          const Text(
+            'Book a service',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: KaamdarColors.navy,
+            ),
+          ),
           const SizedBox(height: 10),
           FilledButton.icon(
             onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Booking flow will be connected here.')),
+              const SnackBar(
+                content: Text('Booking flow will be connected here.'),
+              ),
             ),
             icon: const Icon(Icons.calendar_month_rounded),
             label: const Text('Book Now'),
             style: FilledButton.styleFrom(
               backgroundColor: KaamdarColors.orange,
-              foregroundColor: Colors.white,
+              foregroundColor: KaamdarColors.white,
               minimumSize: const Size.fromHeight(50),
             ),
           ),
@@ -109,14 +146,28 @@ class HomeScreen extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: 0,
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.receipt_long_outlined), label: 'Bookings'),
-          NavigationDestination(icon: Icon(Icons.person_outline), label: 'Profile'),
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            label: 'Bookings',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
+          ),
         ],
         onDestinationSelected: (index) {
           if (index != 0) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${['Home', 'Bookings', 'Profile'][index]} screen will be connected here.')),
+              SnackBar(
+                content: Text(
+                  '${['Home', 'Bookings', 'Profile'][index]} screen will be connected here.',
+                ),
+              ),
             );
           }
         },

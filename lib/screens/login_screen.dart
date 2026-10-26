@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../app_theme.dart';
+import 'package:flutter/services.dart';
 import '../routes/app_routes.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,78 +10,137 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  static const Color blue = Color(0xFF1261A0);
+  static const Color lightBlue = Color(0xFFD6E5F2);
+
   final _phone = TextEditingController();
-  final _password = TextEditingController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final arg = ModalRoute.of(context)?.settings.arguments;
-    if (arg is String && _phone.text.isEmpty) _phone.text = arg;
+    if (arg is String && _phone.text.isEmpty) {
+      _phone.text = arg;
+    }
   }
 
   @override
   void dispose() {
     _phone.dispose();
-    _password.dispose();
     super.dispose();
   }
 
-  void _login() {
-    if (!RegExp(r'^[6-9][0-9]{9}$').hasMatch(_phone.text.trim()) || _password.text.isEmpty) {
+  void _continue() {
+    final phone = _phone.text.trim();
+
+    if (!RegExp(r'^[6-9][0-9]{9}$').hasMatch(phone)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter your 10-digit phone number and password.')),
+        const SnackBar(content: Text('Enter a valid 10-digit mobile number.')),
       );
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Demo login only. Connect Firebase Auth to sign in securely.')),
-    );
-    Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
+
+    // TODO: Yahan Firebase se OTP bhejna hai (verifyPhoneNumber).
+    Navigator.of(context).pushNamed(AppRoutes.otp, arguments: phone);
   }
 
   @override
   Widget build(BuildContext context) {
+    final h = MediaQuery.sizeOf(context).height;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(backgroundColor: Colors.white, foregroundColor: KaamdarColors.ink, elevation: 0),
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              const Text('Welcome Back', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: KaamdarColors.ink)),
-              const SizedBox(height: 8),
-              const Text('Log in to continue with Kaamdar.', style: TextStyle(color: KaamdarColors.muted)),
-              const SizedBox(height: 30),
-              TextField(
-                controller: _phone,
-                keyboardType: TextInputType.phone,
-                maxLength: 10,
-                decoration: InputDecoration(labelText: 'Mobile Number', prefixText: '+91  ', counterText: '',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(13))),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  SizedBox(height: h * 0.12),
+                  const Text(
+                    'Log in or Sign up',
+                    style: TextStyle(
+                      color: blue,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Phone field (pill shape)
+                  TextField(
+                    controller: _phone,
+                    keyboardType: TextInputType.phone,
+                    maxLength: 10,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    onSubmitted: (_) => _continue(),
+                    style: const TextStyle(fontSize: 15),
+                    decoration: InputDecoration(
+                      counterText: '',
+                      hintText: 'Enter your Mobile Number',
+                      hintStyle: const TextStyle(
+                        color: Color(0xFF8A8A8A),
+                        fontSize: 14,
+                      ),
+                      prefixIcon: const Padding(
+                        padding: EdgeInsets.only(left: 18, right: 14),
+                        child: Center(
+                          widthFactor: 1,
+                          child: Text(
+                            '+91',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 14,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: const BorderSide(color: Color(0xFF6B6B6B)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: const BorderSide(color: blue, width: 1.6),
+                      ),
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  // Fixed bottom button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: FilledButton(
+                      onPressed: _continue,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: lightBlue,
+                        foregroundColor: blue,
+                        elevation: 0,
+                        shape: const StadiumBorder(),
+                      ),
+                      child: const Text(
+                        'Continue',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: h * 0.035),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _password,
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Password',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(13))),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: FilledButton(
-                  onPressed: _login,
-                  style: FilledButton.styleFrom(backgroundColor: KaamdarColors.orange, foregroundColor: Colors.white),
-                  child: const Text('Log In'),
-                ),
-              ),
-              const SizedBox(height: 14),
-            ]
+            ),
           ),
         ),
       ),

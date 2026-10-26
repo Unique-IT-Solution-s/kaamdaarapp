@@ -1,6 +1,6 @@
+
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../app_theme.dart';
 import '../routes/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,12 +13,18 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   Timer? _timer;
 
+  static const Color splashColor = Color(0xFF33469A);
+
   @override
   void initState() {
     super.initState();
+
     _timer = Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed(AppRoutes.onboarding);
+
+      Navigator.of(context).pushReplacementNamed(
+        AppRoutes.onboarding,
+      );
     });
   }
 
@@ -31,65 +37,38 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: KaamdarColors.navy,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, box) {
-            final w = box.maxWidth;
-            final h = box.maxHeight;
-            return Stack(
-              children: [
-                Positioned(
-                  top: h * .075,
-                  left: w * .10,
-                  right: w * .10,
-                  height: h * .15,
-                  child: Image.asset(
-                    'assets/images/kaamdar_splash.png',
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Center(
-                      child: Text('Kaamdar', style: TextStyle(
-                        color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold,
-                      )),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: h * .335,
-                  left: 0,
-                  right: 0,
-                  child: Text(
-                    'All Your Home Services\nIn our App',
+      backgroundColor: splashColor,
+      body: SizedBox.expand(
+        child: ColoredBox(
+          color: splashColor,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+              ),
+              child: Image.asset(
+                'assets/images/kaamdar_splash.png',
+                width: MediaQuery.sizeOf(context).width * 0.88,
+                fit: BoxFit.contain,
+                alignment: Alignment.center,
+                errorBuilder: (context, error, stackTrace) {
+                  debugPrint(
+                    'Splash logo loading error: $error',
+                  );
+
+                  return const Text(
+                    'KaamDaar',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white, fontSize: w * .047, height: 1.25),
-                  ),
-                ),
-                Positioned(
-                  top: h * .505,
-                  left: 0,
-                  right: 0,
-                  child: const Center(child: SizedBox(
-                    width: 27, height: 27,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.2,
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 34,
+                      fontWeight: FontWeight.w800,
                     ),
-                  )),
-                ),
-                Positioned(
-                  left: w * .025,
-                  right: w * .025,
-                  bottom: h * .02,
-                  height: h * .40,
-                  child: Image.asset(
-                    'assets/images/kaamdar_workers.png',
-                    fit: BoxFit.contain,
-                    alignment: Alignment.bottomCenter,
-                  ),
-                ),
-              ],
-            );
-          },
+                  );
+                },
+              ),
+            ),
+          ),
         ),
       ),
     );
