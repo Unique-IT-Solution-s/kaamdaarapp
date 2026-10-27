@@ -1,10 +1,15 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../routes/app_routes.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phone;
-  const OtpScreen({super.key, required this.phone});
+
+  const OtpScreen({
+    super.key,
+    required this.phone,
+  });
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -13,33 +18,50 @@ class OtpScreen extends StatefulWidget {
 class _OtpScreenState extends State<OtpScreen> {
   static const Color blue = Color(0xFF1261A0);
   static const Color lightBlue = Color(0xFFD6E5F2);
-  static const int _otpLength = 4; // Figma mein 4 box hain
+  static const int _otpLength = 4;
 
-  final _otp = TextEditingController();
-  final _focus = FocusNode();
+  final TextEditingController _otp = TextEditingController();
+  final FocusNode _focus = FocusNode();
 
   bool get _isComplete => _otp.text.length == _otpLength;
 
   @override
   void initState() {
     super.initState();
-    _otp.addListener(() => setState(() {}));
-    _focus.addListener(() => setState(() {}));
+    _otp.addListener(_onOtpChanged);
+    _focus.addListener(_onFocusChanged);
+  }
+
+  void _onOtpChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onFocusChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _otp.removeListener(_onOtpChanged);
+    _focus.removeListener(_onFocusChanged);
     _otp.dispose();
     _focus.dispose();
     super.dispose();
   }
 
   void _verify() {
-    if (!_isComplete) return;
+    if (!_isComplete) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter the 4-digit OTP.'),
+        ),
+      );
+      return;
+    }
 
-    // TODO: Yahan Firebase se OTP verify karna hai.
+    // Navigation test: Firebase OTP verification abhi connect nahi hai.
     Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.home,
+      AppRoutes.location,
       (route) => false,
     );
   }
@@ -63,7 +85,10 @@ class _OtpScreenState extends State<OtpScreen> {
       ),
       child: Text(
         hasDigit ? text[index] : '',
-        style: const TextStyle(fontSize: 18, color: Colors.black87),
+        style: const TextStyle(
+          fontSize: 18,
+          color: Colors.black87,
+        ),
       ),
     );
   }
@@ -85,6 +110,7 @@ class _OtpScreenState extends State<OtpScreen> {
               child: Column(
                 children: [
                   SizedBox(height: h * 0.12),
+
                   const Text(
                     'Verify your OTP',
                     style: TextStyle(
@@ -93,7 +119,9 @@ class _OtpScreenState extends State<OtpScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+
                   const SizedBox(height: 6),
+
                   Text(
                     'We have sent a $_otpLength-digit code to +91 ${widget.phone}',
                     textAlign: TextAlign.center,
@@ -102,9 +130,9 @@ class _OtpScreenState extends State<OtpScreen> {
                       fontSize: 13,
                     ),
                   ),
+
                   const SizedBox(height: 24),
 
-                  // OTP boxes: tap karne par keyboard khulta hai
                   GestureDetector(
                     onTap: () => _focus.requestFocus(),
                     child: Stack(
@@ -115,13 +143,14 @@ class _OtpScreenState extends State<OtpScreen> {
                           children: List.generate(
                             _otpLength,
                             (i) => Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
                               child: _box(i),
                             ),
                           ),
                         ),
-                        // Hidden field jo asli typing leta hai
+
                         Opacity(
                           opacity: 0,
                           child: SizedBox(
@@ -158,8 +187,10 @@ class _OtpScreenState extends State<OtpScreen> {
                       style: FilledButton.styleFrom(
                         backgroundColor: lightBlue,
                         foregroundColor: blue,
-                        disabledBackgroundColor: lightBlue.withOpacity(0.6),
-                        disabledForegroundColor: blue.withOpacity(0.5),
+                        disabledBackgroundColor:
+                            lightBlue.withOpacity(0.6),
+                        disabledForegroundColor:
+                            blue.withOpacity(0.5),
                         elevation: 0,
                         shape: const StadiumBorder(),
                       ),
@@ -172,6 +203,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       ),
                     ),
                   ),
+
                   SizedBox(height: h * 0.035),
                 ],
               ),

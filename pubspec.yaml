@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  geolocator: ^14.1.2
 
 dev_dependencies:
   flutter_test:
@@ -35,3 +36,4 @@ flutter:
     - assets/images/onboarding_voice.png
     - assets/images/onboarding_trusted.png
     - assets/images/kaamdar_primarylogo.png
+    - assets/images/location.png
