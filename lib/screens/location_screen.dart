@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../routes/app_routes.dart';
+import 'address_screens.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -18,17 +19,74 @@ class _LocationScreenState extends State<LocationScreen> {
 
   bool _loading = false;
 
-  Future<void> _openHome({Position? position, String? address}) async {
+  Future<void> _openHome({
+    Position? position,
+  }) async {
     if (!mounted) return;
 
-    // TODO: Yahan apni backend API mein location save karo.
-    // GPS coordinates: position?.latitude, position?.longitude
-    // Manual address: address
+    if (position != null) {
+      debugPrint('Latitude: ${position.latitude}');
+      debugPrint('Longitude: ${position.longitude}');
+    }
 
     Navigator.of(context).pushNamedAndRemoveUntil(
       AppRoutes.home,
       (route) => false,
     );
+  }
+
+  Future<bool> _checkLocationPermission() async {
+    LocationPermission permission =
+        await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied) {
+      _showMessage(
+        'Location permission denied. Please allow permission.',
+      );
+      return false;
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      if (!mounted) return false;
+
+      final openSettings = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Permission Required'),
+          content: const Text(
+            'Location permission is permanently denied. '
+            'Please enable it from app settings.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Open Settings'),
+            ),
+          ],
+        ),
+      );
+
+      if (openSettings == true) {
+        await Geolocator.openAppSettings();
+      }
+
+      return false;
+    }
+
+    return permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always;
   }
 
   Future<void> _allowLocation() async {
@@ -37,28 +95,37 @@ class _LocationScreenState extends State<LocationScreen> {
     setState(() => _loading = true);
 
     try {
+      // STEP 1: Check location permission.
+      final permissionGranted =
+          await _checkLocationPermission();
+
+      if (!permissionGranted) return;
+
+      if (!mounted) return;
+
+      // STEP 2: Check GPS.
       final serviceEnabled =
           await Geolocator.isLocationServiceEnabled();
 
       if (!serviceEnabled) {
-        if (!mounted) return;
-
         final openSettings = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
             title: const Text('Location is turned off'),
             content: const Text(
-              'Please turn on your device location and try again.',
+              'Please turn on your device location to continue.',
             ),
             actions: [
               TextButton(
-                onPressed: () =>
-                    Navigator.pop(dialogContext, false),
+                onPressed: () {
+                  Navigator.pop(dialogContext, false);
+                },
                 child: const Text('Cancel'),
               ),
               TextButton(
-                onPressed: () =>
-                    Navigator.pop(dialogContext, true),
+                onPressed: () {
+                  Navigator.pop(dialogContext, true);
+                },
                 child: const Text('Settings'),
               ),
             ],
@@ -68,37 +135,36 @@ class _LocationScreenState extends State<LocationScreen> {
         if (openSettings == true) {
           await Geolocator.openLocationSettings();
         }
+
         return;
       }
 
-      var permission = await Geolocator.checkPermission();
-
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.denied) {
-        _showMessage('Location permission is required.');
-        return;
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        _showMessage(
-          'Please allow location permission in app settings.',
-        );
-        await Geolocator.openAppSettings();
-        return;
-      }
-
+      // STEP 3: Get current location.
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 25),
         ),
       );
 
+      if (!mounted) return;
+
+      // STEP 4: Navigate to Home.
       await _openHome(position: position);
+    } on LocationServiceDisabledException {
+      _showMessage(
+        'Please enable your device location and try again.',
+      );
+    } on PermissionDeniedException {
+      _showMessage(
+        'Location permission is required to continue.',
+      );
     } catch (e) {
-      _showMessage('Unable to get location. Please try again.');
+      debugPrint('Location error: $e');
+
+      _showMessage(
+        'Unable to get location. Check your GPS and try again.',
+      );
     } finally {
       if (mounted) {
         setState(() => _loading = false);
@@ -110,53 +176,22 @@ class _LocationScreenState extends State<LocationScreen> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
-  Future<void> _enterManually() async {
-    final controller = TextEditingController();
-
-    try {
-      final location = await showDialog<String>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: const Text('Enter your location'),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              hintText: 'Enter city or area',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () {
-                final value = controller.text.trim();
-                if (value.isNotEmpty) {
-                  Navigator.pop(dialogContext, value);
-                }
-              },
-              child: const Text('Continue'),
-            ),
-          ],
-        ),
-      );
-
-      if (!mounted || location == null || location.trim().isEmpty) {
-        return;
-      }
-
-      await _openHome(address: location.trim());
-    } finally {
-      controller.dispose();
-    }
+  // MANUAL ADDRESS FLOW
+  // Enter Manually -> Add Address Screen.
+  void _enterManually() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddAddressScreen(),
+      ),
+    );
   }
 
   @override
@@ -167,27 +202,41 @@ class _LocationScreenState extends State<LocationScreen> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final height = constraints.maxHeight;
+            final compact = height < 680;
+
+            final horizontalPadding =
+                constraints.maxWidth < 360 ? 20.0 : 24.0;
 
             return Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 430),
+                constraints: const BoxConstraints(
+                  maxWidth: 430,
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                  ),
                   child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.stretch,
                     children: [
-                      SizedBox(height: height * 0.055),
+                      SizedBox(
+                        height:
+                            height * (compact ? 0.035 : 0.045),
+                      ),
 
                       const Text(
                         'Allow Location',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: blue,
-                          fontSize: 22,
+                          fontSize: 21,
+                          height: 1.2,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      SizedBox(height: height * 0.018),
 
                       const Text(
                         'Allow us to Access your Location',
@@ -195,67 +244,79 @@ class _LocationScreenState extends State<LocationScreen> {
                         style: TextStyle(
                           color: grey,
                           fontSize: 13,
+                          height: 1.3,
                         ),
                       ),
 
-                      SizedBox(height: height * 0.025),
-
-                      Expanded(
-                        flex: 4,
+                      SizedBox(
+                        height:
+                            height * (compact ? 0.255 : 0.285),
                         child: Center(
                           child: Image.asset(
                             'assets/images/location.png',
-                            width: 230,
-                            height: 200,
+                            width: constraints.maxWidth * 0.70,
                             fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) {
+                            alignment: Alignment.center,
+                            errorBuilder: (
+                              context,
+                              error,
+                              stackTrace,
+                            ) {
+                              debugPrint(
+                                'Location illustration error: $error',
+                              );
+
                               return Icon(
-                                Icons.location_on,
+                                Icons.location_on_rounded,
                                 color: blue,
-                                size: height * 0.20,
+                                size: height * 0.15,
                               );
                             },
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      SizedBox(height: height * 0.006),
 
                       const _BenefitRow(
-                        icon: Icons.location_searching,
+                        icon: Icons.location_searching_rounded,
                         text: 'Find nearby professionals.',
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: height * 0.022),
 
                       const _BenefitRow(
-                        icon: Icons.access_time,
+                        icon: Icons.access_time_rounded,
                         text: 'Faster booking',
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: height * 0.022),
 
                       const _BenefitRow(
-                        icon: Icons.assistant_navigation,
+                        icon: Icons.navigation_rounded,
                         text: 'Better Service Experience',
                       ),
 
-                      const Spacer(flex: 2),
+                      const Spacer(),
 
                       SizedBox(
-                        height: 48,
+                        height: 46,
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: _loading ? null : _allowLocation,
+                          onPressed:
+                              _loading ? null : _allowLocation,
                           style: OutlinedButton.styleFrom(
                             foregroundColor: blue,
-                            side: const BorderSide(color: blue),
+                            side: const BorderSide(
+                              color: blue,
+                              width: 1.1,
+                            ),
                             shape: const StadiumBorder(),
                           ),
                           child: _loading
                               ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
+                                  width: 19,
+                                  height: 19,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                   ),
@@ -263,38 +324,43 @@ class _LocationScreenState extends State<LocationScreen> {
                               : const Text(
                                   'Allow Location',
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
                       SizedBox(
-                        height: 48,
+                        height: 46,
                         width: double.infinity,
                         child: FilledButton(
-                          onPressed:
-                              _loading ? null : _enterManually,
+                          onPressed: _loading
+                              ? null
+                              : _enterManually,
                           style: FilledButton.styleFrom(
                             backgroundColor: lightBlue,
                             foregroundColor: blue,
+                            disabledBackgroundColor: lightBlue,
                             elevation: 0,
                             shape: const StadiumBorder(),
                           ),
                           child: const Text(
                             'Enter Manually',
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ),
 
-                      SizedBox(height: height * 0.035),
+                      SizedBox(
+                        height:
+                            height * (compact ? 0.025 : 0.035),
+                      ),
                     ],
                   ),
                 ),
@@ -318,32 +384,39 @@ class _BenefitRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: const Color(0xFFD6E5F2),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: Icon(
-            icon,
-            color: const Color(0xFF1261A0),
-            size: 22,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: Color(0xFF756D7A),
-              fontSize: 13,
+    return SizedBox(
+      height: 38,
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: const Color(0xFFD6E5F2),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Icon(
+              icon,
+              color: const Color(0xFF1261A0),
+              size: 21,
             ),
           ),
-        ),
-      ],
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Color(0xFF756D7A),
+                fontSize: 13,
+                height: 1.25,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

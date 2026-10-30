@@ -13,6 +13,8 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   geolocator: ^14.1.2
+  firebase_core: ^3.15.2
+  firebase_auth: ^5.7.0
 
 dev_dependencies:
   flutter_test:
@@ -37,3 +39,5 @@ flutter:
     - assets/images/onboarding_trusted.png
     - assets/images/kaamdar_primarylogo.png
     - assets/images/location.png
+    - assets/images/kaamdaar_loginscreen.png
+    - assets/images/otp_screen.png

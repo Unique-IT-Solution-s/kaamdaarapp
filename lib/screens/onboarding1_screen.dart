@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import '../app_theme.dart';
 
@@ -15,166 +16,222 @@ class Onboarding1Screen extends StatelessWidget {
     required this.onSkip,
   });
 
+  static const List<String> _images = [
+    'assets/images/onboarding_booking.png',
+    'assets/images/onboarding_voice.png',
+    'assets/images/onboarding_trusted.png',
+  ];
+
+  static const List<String> _titles = [
+    'Har Kaam Turant\nBook Kare',
+    'Voice se\nBook Kare',
+    'Trusted &\nSecure',
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final page = currentPage.clamp(0, 2);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final w = constraints.maxWidth;
         final h = constraints.maxHeight;
-        final panelTop = h * 0.405;
 
-        return ClipRect(
+        return ColoredBox(
+          color: Colors.white,
           child: Stack(
-            clipBehavior: Clip.hardEdge,
             children: [
-              Positioned.fill(
-                child: ColoredBox(color: KaamdarColors.blue),
-              ),
-              Positioned.fill(
-                child: CustomPaint(painter: _WavePainter()),
-              ),
-
-              // White bottom panel
+              // Background glow
               Positioned(
-                top: panelTop,
-                left: 0,
-                right: 0,
-                bottom: 0,
+                top: h * 0.09,
+                left: w * 0.06,
+                right: w * 0.06,
+                height: h * 0.37,
                 child: const DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(28),
+                    gradient: RadialGradient(
+                      colors: [
+                        Color(0xFFFFE6C7),
+                        Color(0xFFFFF5E9),
+                        Colors.white,
+                      ],
                     ),
                   ),
                 ),
               ),
 
-              // Illustration overlaps the blue and white areas, like the reference.
-              Positioned(
-                top: h * 0.008,
-                left: w * 0.025,
-                right: w * 0.025,
-                height: h * 0.49,
-                child: Image.asset(
-                  'assets/images/onboarding_booking.png',
-                  fit: BoxFit.contain,
-                  alignment: Alignment.bottomCenter,
-                  errorBuilder: (context, error, stack) {
-                    debugPrint('Onboarding image error: $error');
-                    return const SizedBox.shrink();
-                  },
+              // Orange curves at the top corners
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: _CornerPainter(),
+                  ),
                 ),
               ),
 
-              // Text and controls stay inside the screen; no vertical scrolling.
-              Positioned(
-                top: panelTop + h * 0.075,
-                left: 0,
-                right: 0,
-                bottom: h * 0.012,
+              // Main layout: image, text, indicators and buttons
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: w * 0.085),
                 child: Column(
                   children: [
-                    SizedBox(
-                      height: h * 0.115,
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            'Har kaam\\nTurant Book karein',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Color(0xFF102A43),
-                              fontSize: 23,
-                              height: 1.24,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: h * 0.012),
-
-                    SizedBox(
-                      height: h * 0.125,
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Text(
-                            'Plumbing, Electrical, Cleaning,\\n'
-                            'AC Repair, Painting aur\\n'
-                            'kai aur services.',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Color(0xFF343434),
-                              fontSize: 17,
-                              height: 1.38,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const Spacer(),
-
-                    // Active page indicator
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        3,
-                        (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeOut,
-                          margin: const EdgeInsets.symmetric(horizontal: 8),
-                          width: 9,
-                          height: 9,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: currentPage == index
-                                ? KaamdarColors.orange
-                                : const Color(0xFFD7D7D7),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const Spacer(),
-
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(22, 0, 22, 12),
-                      child: Row(
+                    // Illustration
+                    Expanded(
+                      flex: 48,
+                      child: Stack(
+                        alignment: Alignment.center,
                         children: [
-                          _navButton(Icons.arrow_back_rounded, onBack),
-                          const SizedBox(width: 10),
-                          _navButton(Icons.arrow_forward_rounded, onNext),
-                          const Spacer(),
-                          SizedBox(
-                            height: 44,
-                            child: OutlinedButton(
-                              onPressed: onSkip,
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: KaamdarColors.orange,
-                                side: const BorderSide(
-                                  color: KaamdarColors.orange,
-                                  width: 1.5,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 25,
-                                ),
-                                shape: const StadiumBorder(),
+                          Positioned(
+                            left: w * 0.07,
+                            right: w * 0.07,
+                            top: h * 0.16,
+                            bottom: h * 0.04,
+                            child: IgnorePointer(
+                              child: CustomPaint(
+                                painter: _CirclePainter(),
                               ),
-                              child: Text(
-                                currentPage == 2 ? 'Finish' : 'Skip',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: h * 0.035,
+                              bottom: h * 0.015,
+                            ),
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 220),
+                              child: Image.asset(
+                                _images[page],
+                                key: ValueKey(_images[page]),
+                                width: w * 0.94,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) {
+                                  debugPrint(
+                                    'Onboarding image error: $error',
+                                  );
+                                  return const Icon(
+                                    Icons.image_not_supported_outlined,
+                                    size: 45,
+                                    color: Colors.grey,
+                                  );
+                                },
                               ),
                             ),
                           ),
                         ],
+                      ),
+                    ),
+
+                    // Heading and description
+                    Expanded(
+                      flex: 25,
+                      child: Align(
+                        alignment: const Alignment(0, -0.18),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 4,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      color: KaamdarColors.blue,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 7),
+                                  Expanded(
+                                    child: Text(
+                                      _titles[page],
+                                      key: ValueKey('title_$page'),
+                                      textAlign: TextAlign.left,
+                                      style: const TextStyle(
+                                        color: Color(0xFF17649F),
+                                        fontSize: 25,
+                                        height: 1.22,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              const Padding(
+                                padding: EdgeInsets.only(left: 8),
+                                child: Text(
+                                  'Plumbing, Electrical, Cleaning\n'
+                                  'AC Repair, Painting aur kai aur Services.',
+                                  style: TextStyle(
+                                    color: Color(0xFF77717C),
+                                    fontSize: 17,
+                                    height: 1.45,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Page indicator
+                    SizedBox(
+                      height: h * 0.055,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(3, (index) {
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              margin: const EdgeInsets.only(left: 3),
+                              width: page == index ? 17 : 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: page == index
+                                    ? KaamdarColors.blue
+                                    : const Color(0xFFD7D7D7),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+
+                    // Navigation controls
+                    SizedBox(
+                      height: h * 0.105,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Row(
+                          children: [
+                            _navButton(
+                              Icons.chevron_left,
+                              onBack,
+                            ),
+                            const SizedBox(width: 10),
+                            _navButton(
+                              Icons.chevron_right,
+                              onNext,
+                            ),
+                            const Spacer(),
+                            TextButton(
+                              onPressed: onSkip,
+                              child: Text(
+                                page == 2 ? 'Finish' : 'Skip',
+                                style: const TextStyle(
+                                  color: KaamdarColors.orange,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -197,69 +254,84 @@ class Onboarding1Screen extends StatelessWidget {
         onTap: callback,
         customBorder: const CircleBorder(),
         child: SizedBox(
-          width: 46,
-          height: 46,
-          child: Icon(icon, color: Colors.white, size: 27),
+          width: 40,
+          height: 40,
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 28,
+          ),
         ),
       ),
     );
   }
 }
 
-class _WavePainter extends CustomPainter {
+class _CornerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.72)
+      ..color = const Color(0xFFFF7900)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.9;
+      ..strokeWidth = 0.8;
 
-    final path = Path()
-      ..moveTo(0, size.height * 0.40)
-      ..cubicTo(
-        size.width * 0.06,
-        size.height * 0.28,
-        size.width * 0.10,
-        size.height * 0.17,
-        size.width * 0.23,
-        size.height * 0.13,
-      )
-      ..cubicTo(
-        size.width * 0.35,
-        size.height * 0.08,
-        size.width * 0.42,
-        size.height * 0.10,
-        size.width * 0.50,
-        size.height * 0.19,
-      )
-      ..cubicTo(
-        size.width * 0.56,
-        size.height * 0.26,
-        size.width * 0.49,
-        size.height * 0.29,
-        size.width * 0.58,
-        size.height * 0.31,
-      )
-      ..cubicTo(
-        size.width * 0.71,
-        size.height * 0.32,
-        size.width * 0.79,
-        size.height * 0.20,
-        size.width * 0.87,
-        size.height * 0.11,
-      )
-      ..cubicTo(
-        size.width * 0.92,
-        size.height * 0.06,
-        size.width * 0.96,
-        size.height * 0.07,
-        size.width,
-        size.height * 0.055,
-      );
+    for (int i = 0; i < 3; i++) {
+      final left = Path()
+        ..moveTo(0, size.height * (0.04 + i * 0.018))
+        ..cubicTo(
+          size.width * 0.15,
+          size.height * (0.05 + i * 0.018),
+          size.width * 0.10,
+          size.height * 0.11,
+          0,
+          size.height * 0.14,
+        );
+      canvas.drawPath(left, paint);
 
-    canvas.drawPath(path, paint);
+      final right = Path()
+        ..moveTo(size.width * (0.88 + i * 0.025), 0)
+        ..cubicTo(
+          size.width * 0.86,
+          size.height * 0.07,
+          size.width * 0.96,
+          size.height * 0.08,
+          size.width,
+          size.height * 0.12,
+        );
+      canvas.drawPath(right, paint);
+    }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _CornerPainter oldDelegate) => false;
+}
+
+class _CirclePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFFF7900)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8;
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    for (final rotation in [-0.18, 0.12, 0.28]) {
+      canvas.save();
+      canvas.translate(center.dx, center.dy);
+      canvas.rotate(rotation);
+      canvas.drawOval(
+        Rect.fromCenter(
+          center: Offset.zero,
+          width: size.width * 0.93,
+          height: size.height * 0.84,
+        ),
+        paint,
+      );
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _CirclePainter oldDelegate) => false;
 }

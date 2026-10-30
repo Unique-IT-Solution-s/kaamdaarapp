@@ -25,10 +25,25 @@ class AppRoutes {
         login: (_) => const LoginScreen(),
 
         otp: (context) {
-          final phone =
-              ModalRoute.of(context)?.settings.arguments as String? ?? '';
+          final args =
+              ModalRoute.of(context)?.settings.arguments;
 
-          return OtpScreen(phone: phone);
+          if (args is! Map) {
+            return const LoginScreen();
+          }
+
+          final phone = args['phone'] as String? ?? '';
+          final verificationId =
+              args['verificationId'] as String? ?? '';
+
+          if (phone.isEmpty || verificationId.isEmpty) {
+            return const LoginScreen();
+          }
+
+          return OtpScreen(
+            phone: phone,
+            verificationId: verificationId,
+          );
         },
 
         location: (_) => const LocationScreen(),

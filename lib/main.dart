@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 import 'app_theme.dart';
 import 'routes/app_routes.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
+
   runApp(const KaamdarApp());
 }
 
@@ -13,7 +18,7 @@ class KaamdarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kaamdar',
+      title: 'KaamDaar',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
