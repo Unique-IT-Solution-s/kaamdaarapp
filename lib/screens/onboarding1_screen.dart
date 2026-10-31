@@ -86,14 +86,13 @@ class Onboarding1Screen extends StatelessWidget {
                 ),
               ),
 
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: w * 0.085,
-                ),
-                child: Column(
-                  children: [
-                    // ONLY PHOTO AND BLUE HEADING SWIPE
-                    Expanded(
+              // Main layout without outer horizontal padding
+              Column(
+                children: [
+                  // FULL WIDTH SWIPE AREA
+                  Expanded(
+                    child: SizedBox(
+                      width: double.infinity,
                       child: PageView.builder(
                         controller: pageController,
                         itemCount: 3,
@@ -104,79 +103,85 @@ class Onboarding1Screen extends StatelessWidget {
                         itemBuilder: (context, index) {
                           return Column(
                             children: [
-                              // Photo changes
+                              // Full width illustration
                               Expanded(
                                 child: Padding(
                                   padding: EdgeInsets.only(
                                     top: h * 0.035,
                                     bottom: h * 0.015,
                                   ),
-                                  child: AnimatedSwitcher(
-                                    duration: const Duration(
-                                      milliseconds: 220,
-                                    ),
-                                    child: Image.asset(
-                                      _images[index],
-                                      key: ValueKey(_images[index]),
-                                      width: w * 0.94,
-                                      fit: BoxFit.contain,
-                                      errorBuilder: (
-                                        context,
-                                        error,
-                                        stackTrace,
-                                      ) {
-                                        debugPrint(
-                                          'Onboarding image error: $error',
-                                        );
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: AnimatedSwitcher(
+                                      duration: const Duration(
+                                        milliseconds: 220,
+                                      ),
+                                      child: Image.asset(
+                                        _images[index],
+                                        key: ValueKey(_images[index]),
+                                        width: double.infinity,
+                                        fit: BoxFit.contain,
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          debugPrint(
+                                            'Onboarding image error: $error',
+                                          );
 
-                                        return const Icon(
-                                          Icons.image_not_supported_outlined,
-                                          size: 45,
-                                          color: Colors.grey,
-                                        );
-                                      },
+                                          return const Icon(
+                                            Icons.image_not_supported_outlined,
+                                            size: 45,
+                                            color: Colors.grey,
+                                          );
+                                        },
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
 
-                              // Only blue heading changes
+                              // Blue heading
                               SizedBox(
                                 height: h * 0.16,
-                                child: Align(
-                                  alignment: const Alignment(0, -0.18),
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          width: 4,
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            color: KaamdarColors.blue,
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 7),
-                                        Expanded(
-                                          child: Text(
-                                            _titles[index],
-                                            key: ValueKey(
-                                              'title_$index',
-                                            ),
-                                            textAlign: TextAlign.left,
-                                            style: const TextStyle(
-                                              color: Color(0xFF17649F),
-                                              fontSize: 25,
-                                              height: 1.22,
-                                              fontWeight: FontWeight.w700,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: w * 0.085,
+                                  ),
+                                  child: Align(
+                                    alignment: const Alignment(0, -0.18),
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            width: 4,
+                                            height: 60,
+                                            decoration: BoxDecoration(
+                                              color: KaamdarColors.blue,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                          const SizedBox(width: 7),
+                                          Expanded(
+                                            child: Text(
+                                              _titles[index],
+                                              key: ValueKey('title_$index'),
+                                              textAlign: TextAlign.left,
+                                              style: const TextStyle(
+                                                color: Color(0xFF17649F),
+                                                fontSize: 25,
+                                                height: 1.22,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -186,11 +191,16 @@ class Onboarding1Screen extends StatelessWidget {
                         },
                       ),
                     ),
+                  ),
 
-                    // FIXED DESCRIPTION
-                    SizedBox(
-                      height: h * 0.12,
-                      width: double.infinity,
+                  // FIXED DESCRIPTION
+                  SizedBox(
+                    height: h * 0.12,
+                    width: double.infinity,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: w * 0.085,
+                      ),
                       child: const Align(
                         alignment: Alignment.topLeft,
                         child: Padding(
@@ -207,10 +217,15 @@ class Onboarding1Screen extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
 
-                    // FIXED PAGE INDICATORS
-                    SizedBox(
-                      height: h * 0.055,
+                  // FIXED PAGE INDICATORS
+                  SizedBox(
+                    height: h * 0.055,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: w * 0.085,
+                      ),
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: Row(
@@ -234,10 +249,15 @@ class Onboarding1Screen extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
 
-                    // FIXED BUTTONS
-                    SizedBox(
-                      height: h * 0.105,
+                  // FIXED NAVIGATION BUTTONS
+                  SizedBox(
+                    height: h * 0.105,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: w * 0.085,
+                      ),
                       child: Align(
                         alignment: Alignment.center,
                         child: Row(
@@ -267,8 +287,8 @@ class Onboarding1Screen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
