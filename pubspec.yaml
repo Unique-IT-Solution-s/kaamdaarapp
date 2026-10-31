@@ -15,6 +15,7 @@ dependencies:
   geolocator: ^14.1.2
   firebase_core: ^3.15.2
   firebase_auth: ^5.7.0
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
@@ -41,3 +42,4 @@ flutter:
     - assets/images/location.png
     - assets/images/kaamdaar_loginscreen.png
     - assets/images/otp_screen.png
+    - assets/images/location_home.png

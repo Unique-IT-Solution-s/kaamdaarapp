@@ -1,6 +1,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../routes/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -22,9 +23,20 @@ class _SplashScreenState extends State<SplashScreen> {
     _timer = Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
 
-      Navigator.of(context).pushReplacementNamed(
-        AppRoutes.onboarding,
-      );
+      // Check whether the user is already logged in.
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.home,
+          (route) => false,
+        );
+      } else {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.onboarding,
+          (route) => false,
+        );
+      }
     });
   }
 
@@ -43,18 +55,14 @@ class _SplashScreenState extends State<SplashScreen> {
           color: splashColor,
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 18,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 18),
               child: Image.asset(
                 'assets/images/kaamdar_splash.png',
                 width: MediaQuery.sizeOf(context).width * 0.88,
                 fit: BoxFit.contain,
                 alignment: Alignment.center,
                 errorBuilder: (context, error, stackTrace) {
-                  debugPrint(
-                    'Splash logo loading error: $error',
-                  );
+                  debugPrint('Splash logo loading error: $error');
 
                   return const Text(
                     'KaamDaar',

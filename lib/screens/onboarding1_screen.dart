@@ -4,6 +4,8 @@ import '../app_theme.dart';
 
 class Onboarding1Screen extends StatelessWidget {
   final int currentPage;
+  final PageController pageController;
+  final ValueChanged<int> onPageChanged;
   final VoidCallback? onBack;
   final VoidCallback onNext;
   final VoidCallback onSkip;
@@ -11,6 +13,8 @@ class Onboarding1Screen extends StatelessWidget {
   const Onboarding1Screen({
     super.key,
     required this.currentPage,
+    required this.pageController,
+    required this.onPageChanged,
     required this.onBack,
     required this.onNext,
     required this.onSkip,
@@ -41,7 +45,7 @@ class Onboarding1Screen extends StatelessWidget {
           color: Colors.white,
           child: Stack(
             children: [
-              // Background glow
+              // Fixed background glow
               Positioned(
                 top: h * 0.09,
                 left: w * 0.06,
@@ -60,7 +64,7 @@ class Onboarding1Screen extends StatelessWidget {
                 ),
               ),
 
-              // Orange curves at the top corners
+              // Fixed orange top curves
               Positioned.fill(
                 child: IgnorePointer(
                   child: CustomPaint(
@@ -69,115 +73,142 @@ class Onboarding1Screen extends StatelessWidget {
                 ),
               ),
 
-              // Main layout: image, text, indicators and buttons
+              // Fixed circle decoration
+              Positioned(
+                left: w * 0.07,
+                right: w * 0.07,
+                top: h * 0.18,
+                height: h * 0.40,
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: _CirclePainter(),
+                  ),
+                ),
+              ),
+
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: w * 0.085),
+                padding: EdgeInsets.symmetric(
+                  horizontal: w * 0.085,
+                ),
                 child: Column(
                   children: [
-                    // Illustration
+                    // ONLY PHOTO AND BLUE HEADING SWIPE
                     Expanded(
-                      flex: 48,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned(
-                            left: w * 0.07,
-                            right: w * 0.07,
-                            top: h * 0.16,
-                            bottom: h * 0.04,
-                            child: IgnorePointer(
-                              child: CustomPaint(
-                                painter: _CirclePainter(),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                              top: h * 0.035,
-                              bottom: h * 0.015,
-                            ),
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 220),
-                              child: Image.asset(
-                                _images[page],
-                                key: ValueKey(_images[page]),
-                                width: w * 0.94,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  debugPrint(
-                                    'Onboarding image error: $error',
-                                  );
-                                  return const Icon(
-                                    Icons.image_not_supported_outlined,
-                                    size: 45,
-                                    color: Colors.grey,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Heading and description
-                    Expanded(
-                      flex: 25,
-                      child: Align(
-                        alignment: const Alignment(0, -0.18),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      child: PageView.builder(
+                        controller: pageController,
+                        itemCount: 3,
+                        onPageChanged: onPageChanged,
+                        physics: const PageScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        itemBuilder: (context, index) {
+                          return Column(
                             children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: 4,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: KaamdarColors.blue,
-                                      borderRadius: BorderRadius.circular(4),
+                              // Photo changes
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    top: h * 0.035,
+                                    bottom: h * 0.015,
+                                  ),
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(
+                                      milliseconds: 220,
+                                    ),
+                                    child: Image.asset(
+                                      _images[index],
+                                      key: ValueKey(_images[index]),
+                                      width: w * 0.94,
+                                      fit: BoxFit.contain,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        debugPrint(
+                                          'Onboarding image error: $error',
+                                        );
+
+                                        return const Icon(
+                                          Icons.image_not_supported_outlined,
+                                          size: 45,
+                                          color: Colors.grey,
+                                        );
+                                      },
                                     ),
                                   ),
-                                  const SizedBox(width: 7),
-                                  Expanded(
-                                    child: Text(
-                                      _titles[page],
-                                      key: ValueKey('title_$page'),
-                                      textAlign: TextAlign.left,
-                                      style: const TextStyle(
-                                        color: Color(0xFF17649F),
-                                        fontSize: 25,
-                                        height: 1.22,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                              const SizedBox(height: 10),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Text(
-                                  'Plumbing, Electrical, Cleaning\n'
-                                  'AC Repair, Painting aur kai aur Services.',
-                                  style: TextStyle(
-                                    color: Color(0xFF77717C),
-                                    fontSize: 17,
-                                    height: 1.45,
+
+                              // Only blue heading changes
+                              SizedBox(
+                                height: h * 0.16,
+                                child: Align(
+                                  alignment: const Alignment(0, -0.18),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          width: 4,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            color: KaamdarColors.blue,
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 7),
+                                        Expanded(
+                                          child: Text(
+                                            _titles[index],
+                                            key: ValueKey(
+                                              'title_$index',
+                                            ),
+                                            textAlign: TextAlign.left,
+                                            style: const TextStyle(
+                                              color: Color(0xFF17649F),
+                                              fontSize: 25,
+                                              height: 1.22,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ],
+                          );
+                        },
+                      ),
+                    ),
+
+                    // FIXED DESCRIPTION
+                    SizedBox(
+                      height: h * 0.12,
+                      width: double.infinity,
+                      child: const Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Text(
+                            'Plumbing, Electrical, Cleaning\n'
+                            'AC Repair, Painting aur kai aur Services.',
+                            style: TextStyle(
+                              color: Color(0xFF77717C),
+                              fontSize: 17,
+                              height: 1.45,
+                            ),
                           ),
                         ),
                       ),
                     ),
 
-                    // Page indicator
+                    // FIXED PAGE INDICATORS
                     SizedBox(
                       height: h * 0.055,
                       child: Align(
@@ -186,7 +217,9 @@ class Onboarding1Screen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: List.generate(3, (index) {
                             return AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
+                              duration: const Duration(
+                                milliseconds: 200,
+                              ),
                               margin: const EdgeInsets.only(left: 3),
                               width: page == index ? 17 : 8,
                               height: 8,
@@ -202,7 +235,7 @@ class Onboarding1Screen extends StatelessWidget {
                       ),
                     ),
 
-                    // Navigation controls
+                    // FIXED BUTTONS
                     SizedBox(
                       height: h * 0.105,
                       child: Align(
@@ -286,6 +319,7 @@ class _CornerPainter extends CustomPainter {
           0,
           size.height * 0.14,
         );
+
       canvas.drawPath(left, paint);
 
       final right = Path()
@@ -298,6 +332,7 @@ class _CornerPainter extends CustomPainter {
           size.width,
           size.height * 0.12,
         );
+
       canvas.drawPath(right, paint);
     }
   }
@@ -314,12 +349,16 @@ class _CirclePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
 
-    final center = Offset(size.width / 2, size.height / 2);
+    final center = Offset(
+      size.width / 2,
+      size.height / 2,
+    );
 
     for (final rotation in [-0.18, 0.12, 0.28]) {
       canvas.save();
       canvas.translate(center.dx, center.dy);
       canvas.rotate(rotation);
+
       canvas.drawOval(
         Rect.fromCenter(
           center: Offset.zero,
@@ -328,6 +367,7 @@ class _CirclePainter extends CustomPainter {
         ),
         paint,
       );
+
       canvas.restore();
     }
   }
