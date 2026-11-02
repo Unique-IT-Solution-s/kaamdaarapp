@@ -20,8 +20,12 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
+  // KAAMDAAR BRAND COLORS
+  static const Color navy = Color(0xFF0B1F3A);
   static const Color blue = Color(0xFF1261A0);
   static const Color lightBlue = Color(0xFFD6E5F2);
+  static const Color orange = Color(0xFFFF7A00);
+
   static const int otpLength = 6;
 
   final TextEditingController _otpController =
@@ -76,12 +80,18 @@ class _OtpScreenState extends State<OtpScreen> {
     }
   }
 
+  // ==========================================
+  // FIREBASE OTP VERIFICATION
+  // ==========================================
+
   Future<void> _verify() async {
     if (_isVerifying) return;
 
     if (!_isComplete) {
       _focusOtp();
-      _showMessage('Please enter the complete 6-digit OTP.');
+      _showMessage(
+        'Please enter the complete 6-digit OTP.',
+      );
       return;
     }
 
@@ -107,6 +117,7 @@ class _OtpScreenState extends State<OtpScreen> {
         AppRoutes.location,
         (route) => false,
       );
+
     } on FirebaseAuthException catch (e) {
       String message;
 
@@ -134,9 +145,13 @@ class _OtpScreenState extends State<OtpScreen> {
       }
 
       _showMessage(message);
+
     } catch (e) {
       debugPrint('OTP verification error: $e');
-      _showMessage('Something went wrong. Please try again.');
+      _showMessage(
+        'Something went wrong. Please try again.',
+      );
+
     } finally {
       if (mounted) {
         setState(() {
@@ -146,9 +161,156 @@ class _OtpScreenState extends State<OtpScreen> {
     }
   }
 
+  // ==========================================
+  // TOP BACK BUTTON
+  // ==========================================
+
+  Widget _backButton() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: IconButton(
+        onPressed: () => Navigator.pop(context),
+        icon: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: navy,
+          size: 23,
+        ),
+      ),
+    );
+  }
+
+  // ==========================================
+  // SHIELD ICON
+  // ==========================================
+
+  Widget _securityIcon(double size) {
+    return Container(
+      height: size,
+      width: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: const Color(0xFFEAF4FF),
+        boxShadow: [
+          BoxShadow(
+            color: blue.withValues(alpha: 0.13),
+            blurRadius: 25,
+            spreadRadius: 4,
+          ),
+        ],
+      ),
+      child: const Icon(
+        Icons.verified_user_rounded,
+        color: Color(0xFF087BE5),
+        size: 90,
+      ),
+    );
+  }
+
+  // ==========================================
+  // OTP HEADING
+  // ==========================================
+
+  Widget _heading(bool compact) {
+    return Column(
+      children: [
+        _securityIcon(compact ? 64 : 76),
+
+        SizedBox(height: compact ? 13 : 20),
+
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            style: TextStyle(
+              fontSize: compact ? 25 : 32,
+              fontWeight: FontWeight.w800,
+              color: navy,
+              height: 1.2,
+            ),
+            children: const [
+              TextSpan(text: 'Verify your '),
+              TextSpan(
+                text: 'OTP',
+                style: TextStyle(
+                  color: Color(0xFF0759D5),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // BLUE + ORANGE UNDERLINE
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 7,
+              width: 75,
+              decoration: const BoxDecoration(
+                color: blue,
+                borderRadius: BorderRadius.horizontal(
+                  left: Radius.circular(10),
+                ),
+              ),
+            ),
+            Container(
+              height: 7,
+              width: 50,
+              decoration: const BoxDecoration(
+                color: orange,
+                borderRadius: BorderRadius.horizontal(
+                  right: Radius.circular(10),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ==========================================
+  // PHONE NUMBER TEXT
+  // ==========================================
+
+  Widget _phoneText(bool compact) {
+    return Column(
+      children: [
+        Text(
+          'We have sent a 6-digit code to',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: const Color(0xFF5F6071),
+            fontSize: compact ? 15 : 18,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+
+        const SizedBox(height: 5),
+
+        Text(
+          '+91 ${widget.phone}',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: const Color(0xFF0759D5),
+            fontSize: compact ? 20 : 25,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================
+  // SIX OTP BOXES
+  // ==========================================
+
   Widget _otpBoxes() {
     return SizedBox(
-      height: 58,
+      height: 64,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -162,35 +324,40 @@ class _OtpScreenState extends State<OtpScreen> {
                   value.length.clamp(0, otpLength - 1);
 
               final isActive =
-                  _otpFocus.hasFocus && index == activeIndex;
+                  _otpFocus.hasFocus &&
+                  index == activeIndex;
 
               return Expanded(
                 child: Container(
-                  height: 54,
+                  height: 58,
                   margin: EdgeInsets.only(
-                    right: index == otpLength - 1 ? 0 : 7,
+                    right: index == otpLength - 1 ? 0 : 8,
                   ),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: lightBlue,
-                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFFE8F3FC),
+                    borderRadius: BorderRadius.circular(15),
                     border: Border.all(
-                      color: isActive ? blue : Colors.transparent,
-                      width: 1.6,
+                      color: isActive
+                          ? blue
+                          : const Color(0xFFB7D7F4),
+                      width: isActive ? 2 : 1.5,
                     ),
                   ),
                   child: Text(
                     hasDigit ? value[index] : '',
                     style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
+                      fontSize: 23,
+                      fontWeight: FontWeight.w700,
+                      color: navy,
                     ),
                   ),
                 ),
               );
             }),
           ),
+
+          // HIDDEN TEXT FIELD FOR OTP INPUT
 
           Positioned.fill(
             child: TextField(
@@ -234,129 +401,222 @@ class _OtpScreenState extends State<OtpScreen> {
     );
   }
 
+  // ==========================================
+  // OTP ILLUSTRATION
+  // ==========================================
+
+  Widget _otpIllustration() {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // SOFT BLUE BACKGROUND CIRCLE
+
+        Container(
+          width: 260,
+          height: 260,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFFEAF5FF),
+          ),
+        ),
+
+        // MAIN OTP PHONE IMAGE
+
+        Image.asset(
+          'assets/images/otp_screen.png',
+          fit: BoxFit.contain,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (context, error, stackTrace) {
+            debugPrint('OTP image error: $error');
+
+            return const Icon(
+              Icons.phone_android_rounded,
+              size: 120,
+              color: blue,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  // ==========================================
+  // CONTINUE BUTTON
+  // ==========================================
+
+  Widget _continueButton() {
+    return SizedBox(
+      height: 58,
+      width: double.infinity,
+      child: FilledButton(
+        onPressed: (_isVerifying || !_isComplete)
+            ? null
+            : _verify,
+
+        style: FilledButton.styleFrom(
+          backgroundColor: blue,
+          foregroundColor: Colors.white,
+
+          disabledBackgroundColor: lightBlue,
+          disabledForegroundColor:
+              blue.withValues(alpha: 0.55),
+
+          elevation: 0,
+
+          shape: const StadiumBorder(),
+        ),
+
+        child: _isVerifying
+            ? const SizedBox(
+                height: 23,
+                width: 23,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: blue,
+                ),
+              )
+            : const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Continue',
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+
+                  SizedBox(width: 15),
+
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 25,
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  // ==========================================
+  // MAIN SCREEN
+  // ==========================================
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final height = constraints.maxHeight;
-            final compact = height < 650;
 
-            return Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: 480,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: height * (compact ? 0.035 : 0.065),
-                      ),
+      body: Stack(
+        children: [
+          // TOP RIGHT SOFT BLUE DECORATION
 
-                      Text(
-                        'Verify your OTP',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: blue,
-                          fontSize: compact ? 22 : 26,
-                          height: 1.2,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-
-                      SizedBox(height: height * 0.018),
-
-                      Text(
-                        'We have sent a $otpLength-digit code to\n+91 ${widget.phone}',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: const Color(0xFF756D7A),
-                          fontSize: compact ? 13 : 16,
-                          height: 1.4,
-                        ),
-                      ),
-
-                      SizedBox(height: height * 0.028),
-
-                      _otpBoxes(),
-
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: height * 0.018,
-                            horizontal: 8,
-                          ),
-                          child: Image.asset(
-                            'assets/images/otp_screen.png',
-                            fit: BoxFit.contain,
-                            alignment: Alignment.center,
-                            errorBuilder: (
-                              context,
-                              error,
-                              stackTrace,
-                            ) {
-                              debugPrint(
-                                'OTP illustration error: $error',
-                              );
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(
-                        height: 48,
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed:
-                              (_isVerifying || !_isComplete)
-                                  ? null
-                                  : _verify,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: lightBlue,
-                            foregroundColor: blue,
-                            disabledBackgroundColor: lightBlue,
-                            disabledForegroundColor:
-                                blue.withValues(alpha: 0.45),
-                            elevation: 0,
-                            shape: const StadiumBorder(),
-                          ),
-                          child: _isVerifying
-                              ? const SizedBox(
-                                  height: 22,
-                                  width: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: blue,
-                                  ),
-                                )
-                              : const Text(
-                                  'Continue',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        ),
-                      ),
-
-                      SizedBox(
-                        height: height * (compact ? 0.02 : 0.035),
-                      ),
-                    ],
-                  ),
-                ),
+          Positioned(
+            top: -75,
+            right: -85,
+            child: Container(
+              height: 200,
+              width: 200,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEAF5FF),
+                shape: BoxShape.circle,
               ),
-            );
-          },
-        ),
+            ),
+          ),
+
+          // BOTTOM LEFT SOFT BLUE DECORATION
+
+          Positioned(
+            bottom: -100,
+            left: -110,
+            child: Container(
+              height: 220,
+              width: 220,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEAF5FF),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final height = constraints.maxHeight;
+
+                final compact = height < 700;
+
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 480,
+                    ),
+
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 25,
+                      ),
+
+                      child: Column(
+                        children: [
+                          // BACK BUTTON
+
+                          _backButton(),
+
+                          SizedBox(
+                            height: compact ? 5 : height * 0.025,
+                          ),
+
+                          // HEADING
+
+                          _heading(compact),
+
+                          SizedBox(
+                            height: compact ? 15 : height * 0.025,
+                          ),
+
+                          // PHONE NUMBER
+
+                          _phoneText(compact),
+
+                          SizedBox(
+                            height: compact ? 20 : height * 0.035,
+                          ),
+
+                          // OTP INPUT BOXES
+
+                          _otpBoxes(),
+
+                          // ILLUSTRATION AREA
+
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: compact ? 8 : 20,
+                                horizontal: 12,
+                              ),
+                              child: _otpIllustration(),
+                            ),
+                          ),
+
+                          // CONTINUE BUTTON
+
+                          _continueButton(),
+
+                          SizedBox(
+                            height: compact ? 12 : 25,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
