@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_api_service.dart';
 
 import '../routes/app_routes.dart';
 
@@ -64,146 +64,63 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // ==========================================
   // FIREBASE PHONE AUTHENTICATION
-  // ==========================================
+  // =========================================
+  
+Future<void> _continue() async {
+  if (_isLoading) return;
 
-  Future<void> _continue() async {
-    if (_isLoading) return;
+  final phone = _phone.text.trim();
 
-    final phone = _phone.text.trim();
+  if (!RegExp(r'^[6-9][0-9]{9}$').hasMatch(phone)) {
+    _showMessage('Enter a valid 10-digit mobile number.');
+    return;
+  }
 
-    if (!RegExp(r'^[6-9][0-9]{9}$').hasMatch(phone)) {
-      _showMessage('Enter a valid 10-digit mobile number.');
-      return;
+  FocusScope.of(context).unfocus();
+
+  setState(() => _isLoading = true);
+
+  try {
+    final result = await AuthApiService.requestOtp(
+      phone: '+91$phone',
+    );
+
+    if (result['status'] != true) {
+      throw Exception(
+        result['message'] ?? 'Could not send OTP.',
+      );
     }
 
-    FocusScope.of(context).unfocus();
+    final sessionInfo = result['sessionInfo']?.toString() ?? '';
 
-    setState(() {
-      _isLoading = true;
-    });
+    if (sessionInfo.isEmpty) {
+      throw Exception('Session information missing from server.');
+    }
 
-    try {
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: '+91$phone',
-        timeout: const Duration(seconds: 60),
+    if (!mounted) return;
 
-        // AUTOMATIC VERIFICATION
+    Navigator.of(context).pushNamed(
+      AppRoutes.otp,
+      arguments: {
+        'phone': phone,
+        'sessionInfo': sessionInfo,
+      },
+    );
+  } catch (e) {
+    debugPrint('OTP request error: $e');
 
-        verificationCompleted: (
-          PhoneAuthCredential credential,
-        ) async {
-          try {
-            await FirebaseAuth.instance.signInWithCredential(
-              credential,
-            );
-
-            if (!mounted) return;
-
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              AppRoutes.location,
-              (route) => false,
-            );
-
-          } on FirebaseAuthException catch (e) {
-            _showMessage(
-              e.message ?? 'Automatic verification failed.',
-            );
-          } finally {
-            if (mounted) {
-              setState(() {
-                _isLoading = false;
-              });
-            }
-          }
-        },
-
-        // VERIFICATION FAILED
-
-        verificationFailed: (FirebaseAuthException e) {
-          String message;
-
-          switch (e.code) {
-            case 'invalid-phone-number':
-              message = 'Invalid phone number.';
-              break;
-
-            case 'too-many-requests':
-              message = 'Too many attempts. Please try again later.';
-              break;
-
-            case 'quota-exceeded':
-              message = 'Firebase SMS quota exceeded. Try again later.';
-              break;
-
-            case 'operation-not-allowed':
-              message = 'Enable Phone Authentication in Firebase Console.';
-              break;
-
-            default:
-              message = e.message ?? 'Could not send OTP.';
-          }
-
-          _showMessage(message);
-
-          if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-          }
-        },
-
-        // OTP SENT
-
-        codeSent: (
-          String verificationId,
-          int? resendToken,
-        ) {
-          if (!mounted) return;
-
-          setState(() {
-            _isLoading = false;
-          });
-
-          Navigator.of(context).pushNamed(
-            AppRoutes.otp,
-            arguments: {
-              'phone': phone,
-              'verificationId': verificationId,
-              'resendToken': resendToken,
-            },
-          );
-        },
-
-        // AUTO RETRIEVAL TIMEOUT
-
-        codeAutoRetrievalTimeout: (String verificationId) {
-          // Manual OTP entry remains available.
-        },
-      );
-
-    } on FirebaseAuthException catch (e) {
-      _showMessage(
-        e.message ?? 'Unable to start phone verification.',
-      );
-
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-
-    } catch (e) {
-      debugPrint('Phone authentication error: $e');
-
-      _showMessage('Something went wrong. Please try again.');
-
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    _showMessage(
+      e.toString().replaceFirst('Exception: ', ''),
+    );
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
+}
+
+
+    
 
   // ==========================================
   // KAAMDAAR LOGO

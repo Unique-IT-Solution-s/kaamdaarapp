@@ -87,13 +87,7 @@ class HomeScreen extends StatelessWidget {
               final service = _services[index];
               return InkWell(
                 borderRadius: BorderRadius.circular(16),
-                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '${service.$2} booking will be connected here.',
-                    ),
-                  ),
-                ),
+               
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(

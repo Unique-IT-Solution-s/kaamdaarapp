@@ -6,6 +6,7 @@ import 'package:geocoding/geocoding.dart';
 import 'booking_screen.dart';
 import '../app_theme.dart';
 import '../routes/app_routes.dart';
+import 'service_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -168,9 +169,79 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ───────────── BOOK SERVICE ─────────────
   void _bookService(String name) {
-    // Connect your booking flow here.
-    debugPrint('Selected service: $name');
+  // Banner button: user ko service select karne do.
+  if (name == 'General') {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(22),
+        ),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Choose a Service',
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                ..._services.map((service) {
+                  return ListTile(
+                    leading: Icon(
+                      service.icon,
+                      color: service.color,
+                    ),
+                    title: Text(service.name),
+                    trailing: const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 15,
+                    ),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      _openServiceDetail(service);
+                    },
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    return;
   }
+
+  final service = _services.firstWhere(
+    (item) => item.name == name,
+  );
+
+  _openServiceDetail(service);
+}
+
+// OPEN SERVICE DETAIL SCREEN
+void _openServiceDetail(_Service service) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ServiceDetailScreen(
+        serviceName: service.name,
+        serviceIcon: service.icon,
+        serviceColor: service.color,
+      ),
+    ),
+  );
+}
 
   // ───────────── BUILD ─────────────
   @override

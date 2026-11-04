@@ -1,23 +1,25 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_api_service.dart';
 
 import '../routes/app_routes.dart';
 
+
 class OtpScreen extends StatefulWidget {
   final String phone;
-  final String verificationId;
+  final String sessionInfo;
 
   const OtpScreen({
     super.key,
     required this.phone,
-    required this.verificationId,
+    required this.sessionInfo,
   });
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
 }
+
 
 class _OtpScreenState extends State<OtpScreen> {
   // KAAMDAAR BRAND COLORS
@@ -84,82 +86,73 @@ class _OtpScreenState extends State<OtpScreen> {
   // FIREBASE OTP VERIFICATION
   // ==========================================
 
-  Future<void> _verify() async {
-    if (_isVerifying) return;
+  
+Future<void> _verify() async {
+  if (_isVerifying) return;
 
-    if (!_isComplete) {
-      _focusOtp();
-      _showMessage(
-        'Please enter the complete 6-digit OTP.',
+  if (!_isComplete) {
+    _focusOtp();
+    _showMessage('Please enter the complete 6-digit OTP.');
+    return;
+  }
+
+  FocusScope.of(context).unfocus();
+
+  setState(() => _isVerifying = true);
+
+  try {
+    final result = await AuthApiService.verifyOtp(
+      phone: '+91${widget.phone}',
+      sessionInfo: widget.sessionInfo,
+      code: _otpController.text.trim(),
+    );
+
+    if (result['status'] != true) {
+      throw Exception(
+        result['message'] ?? 'OTP verification failed.',
       );
-      return;
     }
 
-    FocusScope.of(context).unfocus();
+    final data = result['data'];
 
-    setState(() {
-      _isVerifying = true;
-    });
+    if (data is! Map) {
+      throw Exception('Invalid login data received.');
+    }
 
-    try {
-      final credential = PhoneAuthProvider.credential(
-        verificationId: widget.verificationId,
-        smsCode: _otpController.text.trim(),
+    final nextStep = data['next_step']?.toString() ?? '';
+    final user = data['user'];
+
+    if (user is! Map) {
+      throw Exception('User information missing.');
+    }
+
+    // Successful login
+    if (!mounted) return;
+
+    if (nextStep == 'HOME') {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRoutes.home,
+        (route) => false,
       );
-
-      await FirebaseAuth.instance.signInWithCredential(
-        credential,
-      );
-
-      if (!mounted) return;
-
+    } else {
       Navigator.of(context).pushNamedAndRemoveUntil(
         AppRoutes.location,
         (route) => false,
       );
+    }
+  } catch (e) {
+    debugPrint('OTP verification error: $e');
 
-    } on FirebaseAuthException catch (e) {
-      String message;
-
-      switch (e.code) {
-        case 'invalid-verification-code':
-          message = 'Incorrect OTP. Please try again.';
-          break;
-
-        case 'session-expired':
-          message = 'OTP expired. Please request a new OTP.';
-          break;
-
-        case 'invalid-verification-id':
-          message =
-              'Verification expired. Please go back and try again.';
-          break;
-
-        case 'too-many-requests':
-          message =
-              'Too many attempts. Please try again later.';
-          break;
-
-        default:
-          message = e.message ?? 'OTP verification failed.';
-      }
-
-      _showMessage(message);
-
-    } catch (e) {
-      debugPrint('OTP verification error: $e');
-      _showMessage(
-        'Something went wrong. Please try again.',
-      );
-
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isVerifying = false;
-        });
-      }
+    _showMessage(
+      e.toString().replaceFirst('Exception: ', ''),
+    );
+  } finally {
+    if (mounted) {
+      setState(() => _isVerifying = false);
     }
   }
+}
+
 
   // ==========================================
   // TOP BACK BUTTON

@@ -33,16 +33,16 @@ class AppRoutes {
           }
 
           final phone = args['phone'] as String? ?? '';
-          final verificationId =
-              args['verificationId'] as String? ?? '';
+          final sessionInfo =
+              args['sessionInfo'] as String? ?? '';
 
-          if (phone.isEmpty || verificationId.isEmpty) {
+          if (phone.isEmpty || sessionInfo.isEmpty) {
             return const LoginScreen();
           }
 
           return OtpScreen(
             phone: phone,
-            verificationId: verificationId,
+            sessionInfo: sessionInfo,
           );
         },
 
