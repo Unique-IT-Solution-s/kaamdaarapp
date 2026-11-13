@@ -1,0 +1,29 @@
+
+{
+  "project_info": {
+    "project_number": "289060051657",
+    "project_id": "kaamdaar-3c2cf",
+    "storage_bucket": "kaamdaar-3c2cf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:289060051657:android:2c296de545315b92c80b18",
+        "android_client_info": {
+          "package_name": "com.kaamdaar.app"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2IwJwrMWgOvLxz4BFSxGlNwbjZW1etcE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
