@@ -26,3 +26,5 @@ flutter:
 
   assets:
     - assets/images/kaamdaar_logo.png
+    - assets/images/language.png   
+    - assets/images/login_screen.png                                                      

@@ -1,6 +1,5 @@
-
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'routes/app_routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,23 +14,8 @@ class ProviderApp extends StatelessWidget {
     return MaterialApp(
       title: 'KAAMDAAR Provider',
       debugShowCheckedModeBanner: false,
-
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Roboto',
-        scaffoldBackgroundColor: Colors.white,
-      ),
-
-      routes: {
-        '/home': (context) => const Scaffold(
-          backgroundColor: Colors.white,
-          body: Center(
-            child: Text('KAAMDAAR Provider'),
-          ),
-        ),
-      },
-
-      home: const SplashScreen(),
+      initialRoute: AppRoutes.splash,
+      onGenerateRoute: AppRoutes.generateRoute,
     );
   }
 }

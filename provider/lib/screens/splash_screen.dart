@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../routes/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,9 +27,12 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
 
-    Timer(const Duration(seconds: 190), () {
+    Timer(const Duration(seconds: 5), () {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.language,
+        );
       }
     });
   }
