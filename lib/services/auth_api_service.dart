@@ -11,7 +11,7 @@ class AuthApiService {
   // ==========================================
 
   static const String _baseUrl =
-      'http://192.168.1.26:4000/api/v1/auth';
+      'http://192.168.1.10:4000/api/v1/auth';
 
   static const FlutterSecureStorage _storage =
       FlutterSecureStorage();

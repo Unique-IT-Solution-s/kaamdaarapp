@@ -33,7 +33,7 @@ class SavedAddressesScreen extends StatefulWidget {
 }
 
 class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
-  static const String _base = 'http://192.168.1.26:4000/api/v1/customer/addresses';
+  static const String _base = 'http://192.168.1.10:4000/api/v1/customer/addresses';
   late List<AddressData> _items;
   bool _busy = false;
   @override

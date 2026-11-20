@@ -48,3 +48,17 @@ flutter:
     - assets/images/otp_screen.png
     - assets/images/location_home.png
     - assets/images/home_banner.png
+    - assets/services/salon.png
+    - assets/services/plumber.png
+    - assets/services/painter.png
+    - assets/services/electrician.png
+    - assets/services/home_cleaning.png
+    - assets/services/carpenter.png
+    - assets/services/pest_control.png
+    - assets/services/water_purifier.png
+    - assets/services/ac_service.png
+    - assets/services/service_bg.png
+    - assets/services/service_bg1.png
+    - assets/services/service_bg2.png
+    - assets/services/service_bg3.png
+    - assets/services/service_bg4.png

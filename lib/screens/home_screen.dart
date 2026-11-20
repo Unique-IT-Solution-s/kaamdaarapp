@@ -27,22 +27,19 @@ class _HomeScreenState extends State<HomeScreen> {
   String _searchQuery = '';
   String? _profileAvatarUrl;
 
-  // Service images: put PNGs in assets/images/services/ and add the folder
-  // under `assets:` in pubspec.yaml. If an image is missing, a soft blob with
-  // the icon is shown instead, so nothing breaks.
+  // Service PNGs are loaded from the same assets/services paths used by
+  // the service cards and the service detail screen. Missing images fall
+  // back to the matching Material icon.
   static const List<_Service> _services = [
-    _Service('Plumbing', '₹299', Icons.plumbing_rounded, Color(0xFF1261A0), 'assets/images/services/plumbing.png'),
-    _Service('Painting', '₹299', Icons.format_paint_rounded, Color(0xFFFF7A00), 'assets/images/services/painting.png'),
-    _Service('Gardening', '₹299', Icons.yard_rounded, Color(0xFF36A88B), 'assets/images/services/gardening.png'),
-    _Service('AC Cleaning', '₹299', Icons.ac_unit_rounded, Color(0xFF1261A0), 'assets/images/services/ac_cleaning.png'),
-    _Service('Salon', '₹299', Icons.content_cut_rounded, Color(0xFFFF7A00), 'assets/images/services/salon.png'),
-    _Service('Dish washing', '₹299', Icons.local_dining_rounded, Color(0xFF36A88B), 'assets/images/services/dish_washing.png'),
-    _Service('Electrician', '₹299', Icons.electrical_services_rounded, Color(0xFFFF7A00), 'assets/images/services/electrician.png'),
-    _Service('Home Cleaning', '₹399', Icons.cleaning_services_rounded, Color(0xFF1261A0), 'assets/images/services/home_cleaning.png'),
-    _Service('Carpenter', '₹299', Icons.handyman_rounded, Color(0xFF36A88B), 'assets/images/services/carpenter.png'),
-    _Service('Pest Control', '₹499', Icons.pest_control_rounded, Color(0xFFFF7A00), 'assets/images/services/pest_control.png'),
-    _Service('Appliance Repair', '₹399', Icons.home_repair_service_rounded, Color(0xFF1261A0), 'assets/images/services/appliance_repair.png'),
-    _Service('Water Purifier', '₹299', Icons.water_drop_rounded, Color(0xFF36A88B), 'assets/images/services/water_purifier.png'),
+    _Service('Plumber', '₹299', Icons.plumbing_rounded, Color(0xFF1261A0), 'assets/services/plumber.png'),
+    _Service('Painter', '₹299', Icons.format_paint_rounded, Color(0xFFFF7A00), 'assets/services/painter.png'),
+    _Service('Salon', '₹299', Icons.content_cut_rounded, Color(0xFFFF7A00), 'assets/services/salon.png'),
+    _Service('Electrician', '₹299', Icons.electrical_services_rounded, Color(0xFFFF7A00), 'assets/services/electrician.png'),
+    _Service('Home Cleaning', '₹399', Icons.cleaning_services_rounded, Color(0xFF1261A0), 'assets/services/home_cleaning.png'),
+    _Service('Carpenter', '₹299', Icons.handyman_rounded, Color(0xFF36A88B), 'assets/services/carpenter.png'),
+    _Service('Pest Control', '₹499', Icons.pest_control_rounded, Color(0xFFFF7A00), 'assets/services/pest_control.png'),
+    _Service('Water Purifier', '₹299', Icons.water_drop_rounded, Color(0xFF36A88B), 'assets/services/water_purifier.png'),
+    _Service('Ac Service', '₹499', Icons.ac_unit_rounded, Color(0xFF1261A0), 'assets/services/ac_service.png'),
   ];
 
   @override
@@ -328,10 +325,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: service.color.withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(13),
                                   ),
-                                  child: Icon(
-                                    service.icon,
-                                    color: service.color,
-                                    size: 24,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(13),
+                                    child: Image.asset(
+                                      service.image,
+                                      width: 46,
+                                      height: 46,
+                                      fit: BoxFit.contain,
+                                      errorBuilder: (context, error, stackTrace) =>
+                                          Icon(
+                                        service.icon,
+                                        color: service.color,
+                                        size: 24,
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 14),
@@ -391,6 +398,7 @@ void _openServiceDetail(_Service service) {
         serviceName: service.name,
         serviceIcon: service.icon,
         serviceColor: service.color,
+        serviceImage: service.image,
       ),
     ),
   );
@@ -690,28 +698,41 @@ void _openServiceDetail(_Service service) {
             ],
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Image area takes whatever height is left
               Expanded(
-                child: Center(child: _serviceImage(service, s)),
-              ),
+  child: Center(
+    child: SizedBox(
+      width: 65 * s,
+      height: 65* s,
+      child: _serviceImage(service, s),
+    ),
+  ),
+),
 
               SizedBox(height: 4 * s),
 
-              Text(
-                service.name,
-                maxLines: 1,
+              SizedBox(
+                width: double.infinity,
+                child: Text(
+                  service.name,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 11.5 * s,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF263238),
+                  ),
                 ),
               ),
 
-              Text(
-                service.price,
+              SizedBox(
+                width: double.infinity,
+                child: Text(
+                  service.price,
+                  textAlign: TextAlign.center,
                 style: TextStyle(
                   color: KaamdarColors.blue,
                   fontSize: 15 * s,
@@ -719,18 +740,29 @@ void _openServiceDetail(_Service service) {
                   height: 1.2,
                 ),
               ),
+              ),
 
+              // Rating and review count centered below the price.
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
                 children: [
-                  Icon(Icons.star_rounded,
-                      color: const Color(0xFFFFB000), size: 12 * s),
+                  Icon(
+                    Icons.star_rounded,
+                    color: const Color(0xFFFFB000),
+                    size: 12 * s,
+                  ),
                   SizedBox(width: 2 * s),
-                  Expanded(
+                  Flexible(
                     child: Text(
                       '(4.3k reviews)',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 8 * s, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 8 * s,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ],
@@ -762,6 +794,7 @@ void _openServiceDetail(_Service service) {
                   ),
                 ),
               ),
+              
             ],
           ),
         ),

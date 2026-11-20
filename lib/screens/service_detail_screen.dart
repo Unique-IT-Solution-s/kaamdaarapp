@@ -8,12 +8,14 @@ class ServiceDetailScreen extends StatefulWidget {
   final String serviceName;
   final IconData serviceIcon;
   final Color serviceColor;
+  final String? serviceImage;
 
   const ServiceDetailScreen({
     super.key,
     required this.serviceName,
     required this.serviceIcon,
     required this.serviceColor,
+    this.serviceImage, 
   });
 
   @override
@@ -21,15 +23,38 @@ class ServiceDetailScreen extends StatefulWidget {
       _ServiceDetailScreenState();
 }
 
-class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
+class _ServiceDetailScreenState extends State<ServiceDetailScreen>
+    with SingleTickerProviderStateMixin {
   int? selectedTask;
 
   late final List<_ServiceTask> tasks;
+  late final AnimationController _heroController;
+  late final Animation<double> _heroFloat;
+  late final Animation<double> _heroScale;
 
   @override
   void initState() {
     super.initState();
     tasks = _getTasks(widget.serviceName);
+
+    // Subtle floating + breathing animation for the service icon.
+    _heroController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..repeat(reverse: true);
+
+    _heroFloat = Tween<double>(begin: 0, end: -8).animate(
+      CurvedAnimation(parent: _heroController, curve: Curves.easeInOut),
+    );
+    _heroScale = Tween<double>(begin: 0.96, end: 1.04).animate(
+      CurvedAnimation(parent: _heroController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _heroController.dispose();
+    super.dispose();
   }
 
   // SERVICE-WISE TASKS
@@ -286,25 +311,52 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
         // MAIN BODY
         body: Column(
           children: [
-            // SERVICE IMAGE
+            // COMMON SERVICE BACKGROUND + SERVICE-WISE ICON/IMAGE
+            // Keep only one background file for every service:
+            // assets/services/service_bg.png
             Container(
               width: double.infinity,
               height: 180,
-              color: const Color(0xFFDCDCDC),
-              child: Center(
-                child: Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.35),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    widget.serviceIcon,
-                    color: widget.serviceColor,
-                    size: 68,
-                  ),
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/services/service_bg1.png'),
+                  fit: BoxFit.cover,
                 ),
+              ),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+              child: AnimatedBuilder(
+                animation: _heroController,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _heroFloat.value),
+                    child: Transform.scale(
+                      scale: _heroScale.value,
+                      child: child,
+                    ),
+                  );
+                },
+                child: widget.serviceImage != null &&
+                        widget.serviceImage!.trim().isNotEmpty
+                    ? Image.asset(
+                        widget.serviceImage!,
+                        width: 145,
+                        height: 145,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          widget.serviceIcon,
+                          color: KaamdarColors.blue,
+                          size: 104,
+                        ),
+                      )
+                    : Icon(
+                        widget.serviceIcon,
+                        color: KaamdarColors.blue,
+                        size: 104,
+                      ),
               ),
             ),
 
@@ -370,24 +422,18 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                                   ),
                                   width: 52,
                                   height: 52,
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? KaamdarColors.blue
-                                        : const Color(0xFFDCEAF7),
+                                  decoration: const BoxDecoration(
+                                    // Removed the orange outline around the circle.
+                                    color: Color(0xFFDCEAF7),
                                     shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? KaamdarColors.orange
-                                          : Colors.transparent,
-                                      width: 2,
-                                    ),
                                   ),
+                                  // Inner service icons stay static.
                                   child: Icon(
                                     task.icon,
                                     color: isSelected
-                                        ? Colors.white
+                                        ? KaamdarColors.orange
                                         : KaamdarColors.blue,
-                                    size: 25,
+                                    size: 27,
                                   ),
                                 ),
                                 const SizedBox(height: 7),
