@@ -43,7 +43,7 @@ class ServiceCategory {
 
 class CategoriesApiService {
   static const String _url =
-      'http://192.168.1.10:4000/api/v1/admin/categories';
+      'http://192.168.1.4:4000/api/v1/admin/categories';
 
   static Future<String> _getToken() async {
     final user = await UserSession.getUser();

@@ -28,8 +28,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   static const Color canvas = Color(0xFFF7F9FC);
 
   // Backend has supplied different LAN hosts for these endpoints.
-  static final Uri _avatarUri = Uri.parse('http://192.168.1.10:4000/api/v1/auth');
-  static final Uri _profileUri = Uri.parse('http://192.168.1.10:4000/api/v1/auth/updateProfileController');
+  static final Uri _avatarUri = Uri.parse('http://192.168.1.4:4000/api/v1/auth');
+  static final Uri _profileUri = Uri.parse('http://192.168.1.4:4000/api/v1/auth/updateProfileController');
 
   final ImagePicker _picker = ImagePicker();
   Map<String, dynamic> user = {};

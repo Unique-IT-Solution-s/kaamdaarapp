@@ -155,7 +155,7 @@ class _ProfileDetailsScreenState
       // Keep this host in sync with AuthApiService's base URL.
       // The backend must be running and reachable at this address.
       final uri = Uri.parse(
-        'http://192.168.1.10:4000/api/v1/auth/updateAvatar',
+        'http://192.168.1.4:4000/api/v1/auth/updateAvatar',
       );
 
       final request = http.MultipartRequest('PATCH', uri);
